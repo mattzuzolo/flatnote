@@ -38,27 +38,33 @@ function handleSidebarNode(title) {
 const displayNotes = (notes) => {
   notes.forEach( note => {
     sidebar.innerHTML += `<div class="${note.id}"><h2>${note.title}</h2><p>${note.body.slice(0,20)}...</p></div>`
-
     detail.innerHTML += `<div class="${note.id}"><h2>${note.title}</h2><p>${note.body}</p><button id="edit" class="${note.id}">Edit</button> <button id="delete" class="${note.id}">Delete</button></div>`
   })
   sidebar.innerHTML += `<div><button style="height:03%; width:100%;" id="create-button">Create a new post!</button></div>`
   const createButton = document.getElementById('create-button');
   createButton.addEventListener("click", displayCreateForm)
-
 }
 
 function displayCreateForm () {
-    //{title: "Brooke's Note", body: "This is brooke's note", user_id: id}
-
     //hide all of the current stories in the detail section
     const detailNodes = document.querySelectorAll("#detail div");
     for (let detailElement of detailNodes) {
           detailElement.style.display = "none";
     }
     generateForm();
-    //obtain info from field
-    //add event listener for when user clicks submit
-        //POST to server after click - createPost(url, body);
+    newSubmit = document.getElementById("submit-button");
+    newSubmit.addEventListener("click", beginPost)
+}
+
+function displayEditForm () {
+    //{title: "Brooke's Note", body: "This is brooke's note", user_id: id}
+    const detailNodes = document.querySelectorAll("#detail div");
+    for (let detailElement of detailNodes) {
+          detailElement.style.display = "none";
+    }
+    generateForm();
+    editSubmit = document.getElementById("submit-button");
+    editSubmit.addEventListener("click", beginEdit)
 }
 
 function generateForm () {
@@ -86,28 +92,56 @@ function generateForm () {
   submitButton.innerHTML = "Submit"
   createForm.append(submitButton);
 
-  submitButton.addEventListener("click", function() {
-    let currentTitleValue = document.getElementById("title-value").value;
-    let currentBodyValue = document.getElementById("body-value").value;
-    //{title: "Brooke's Note", body: "This is brooke's note", user_id: id}
-    let submissionBody = { "title": currentTitleValue, body: "currentBodyValue", "user": 1}
-    postToServer(submissionBody)
+}
+
+function beginPost () {
+  let currentTitleValue = document.getElementById("title-value").value;
+  let currentBodyValue = document.getElementById("body-value").value;
+  let submissionBody = { "title": currentTitleValue, "body": currentBodyValue, "user_id": 1}
+  postToServer(submissionBody)
+}
+
+function beginEdit () {
+  let currentTitleValue = document.getElementById("title-value").value;
+  let currentBodyValue = document.getElementById("body-value").value;
+  let submissionBody = { "title": currentTitleValue, "body": currentBodyValue, "user_id": 1}
+  editOnServer(submissionBody)
+}
+
+function postToServer(body){
+  let url = "http://localhost:3000/api/v1/notes"
+  //{title: "Brooke's Note", body: "This is brooke's note", user_id: id}
+  function createPost(url,body) {
+     const postConfig = {
+       Accept: "application/json",
+       method: "POST",
+       headers: {
+         "Content-type": "application/json"
+       },
+       body: JSON.stringify(body),
+     };
+     debugger;
+     return fetch(url, postConfig)
+   }
+   createPost(url,body)
+}
+
+function editOnServer(editBody) {
+  let url = "http://localhost:3000/api/v1/notes"
+  let id = "#" //somehow find ID
+  let url_with_id = url + "/" + id
+
+  fetch(`url_with_id`, {
+    method: 'PUT',
+    headers: {
+      'Content-type': 'application/json',
+      'Accept': 'application/json',
+    },
+    body: JSON.stringify(editBody)
   })
+  .then( res => res.json())
+  .then( json => console.log(json));
 }
-
-//finds first parent with selector
-//https://stackoverflow.com/questions/22119673/find-the-closest-ancestor-element-that-has-a-specific-class
-
-function clickEditButton () {
-  //add eventlistener for the edit clickEditButton
-
-  //once clicked, it will create a form with:
-      //title field
-      //body field
-      //submit button
-          //add event listener to submit button that will invoke removeFromServer() and make edit request to the server
-}
-
 
 function removeFromServer () {
   let url = "http://localhost:3000/api/v1/notes"
@@ -122,41 +156,8 @@ function removeFromServer () {
   });
 
 }
-//
-function postToServer(body){
-  let url = "http://localhost:3000/api/v1/notes"
-  //{title: "Brooke's Note", body: "This is brooke's note", user_id: id}
-  function createPost(url,body) {
-     const postConfig = {
-       Accept: "application/json",
-       method: "POST",
-       headers: {
-         "Content-type": "application/json"
-       },
-       body: JSON.stringify(body)
-     };
-     return fetch(url, postConfig)
-     .then(() => console.log("Fetch returned!"))
-   }
-   createPost(url,body)
-}
 
-// function editOnServer() {
-//
-//   let url = "http://localhost:3000/api/v1/notes"
-//   let id = "#" //somehow find ID
-//   let url_with_id = url + "/" + id
-//   let editBody = {title: "Brooke's Note", body: "This is brooke's note", user_id: id}
-//
-//   fetch(`url_with_id`, {
-//     method: 'PUT',
-//     headers: {
-//       'Content-type': 'application/json',
-//       'Accept': 'application/json',
-//     },
-//     body: JSON.stringify(editBody)
-//   })
-//   .then( res => res.json())
-//   .then( json => console.log(json));
-//
-// }
+
+
+//finds first parent with selector
+//https://stackoverflow.com/questions/22119673/find-the-closest-ancestor-element-that-has-a-specific-class
