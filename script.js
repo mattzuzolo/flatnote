@@ -8,36 +8,158 @@ document.addEventListener("DOMContentLoaded", function() {
     .then(json => displayNotes(json))
     .then(() => console.log("Fetch complete"))
     .then(() => findSidebarNode())
-    .then(() => deletePostListener());
+    .then(() => deletePostListener())
+    .then(() => editPostListener())
+
 });
 
 function deletePostListener() {
     const deleteButtons = document.querySelectorAll("#delete")
     for (let individualDeleteButton of deleteButtons) {
       individualDeleteButton.addEventListener("click", function(){
-          removeFromFront(this.className);
-          removeFromServer(this.className);
+        removeFromServer(this.className);
+        removeFromFront(this.className);
       })
     }
+}
+
+function editPostListener() {
+    const editButtons = document.querySelectorAll("#edit")
+    for (let individualeditButton of editButtons) {
+      individualeditButton.addEventListener("click", function(){
+        displayEditForm (this.className)
+
+      })
+    }
+}
+
+function displayEditForm (className) {
+    //{title: "Brooke's Note", body: "This is brooke's note", user_id: id}
+    generateForm();
+    editSubmit = document.getElementById("submit-button");
+    // editSubmit.addEventListener("click", beginEdit)
+    editSubmit.addEventListener("click", function () {
+      let currentTitleValue = document.getElementById("title-value").value;
+      let currentBodyValue = document.getElementById("body-value").value;
+      let submissionBody = { "title": currentTitleValue, "body": currentBodyValue, "user_id": 1}
+      // debugger;
+      editOnServer(submissionBody, className)
+    })
+}
+
+
+
+// function editOnServer(editBody, id) {
+//   let url = "http://localhost:3000/api/v1/notes"
+//   //let id = "3" //somehow find ID
+//   let url_with_id = url + "/" + id
+//   debugger;
+//   fetch(url_with_id, {
+//     Accept: 'application/json',
+//     method: 'PUT',
+//     headers: {
+//       'Content-type': 'application/json',
+//     },
+//     body: JSON.stringify(editBody)
+//   })
+//   .then( res => res.json())
+//   .then( json => console.log(json));
+// }
+
+function editOnServer(body, id) {
+  let url = "http://localhost:3000/api/v1/notes"
+  let url_with_id = url + "/" + id
+  // debugger;
+    function createUpdate(url_with_id,body) {
+      const postConfig = {
+        method: "PUT",
+        headers: {
+          "Content-type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify(body),
+      };
+      // debugger;
+      return fetch(url_with_id, postConfig)
+    }
+    // debugger;
+  createUpdate(url_with_id,body)
+  // debugger;
+  //stuck at promise pending. NOt sure why??
+}
+
+
+
+function postToServer(body){
+  let url = "http://localhost:3000/api/v1/notes"
+  //{title: "Brooke's Note", body: "This is brooke's note", user_id: id}
+  function createPost(url,body) {
+
+    const postConfig = {
+      Accept: "application/json",
+      method: "POST",
+      headers: {
+        "Content-type": "application/json"
+      },
+      body: JSON.stringify(body),
+    }
+
+    return fetch(url, postConfig)
+
+  }
+
+  createPost(url,body)
 
 }
+
+function removeFromServer (id) {
+  let url = "http://localhost:3000/api/v1/notes"
+  let url_with_id = url + "/" + id
+
+  // debugger;
+
+  fetch(url_with_id, {
+    method: 'DELETE',
+    headers: {
+      "Accept": "application/json",
+      "Content-type": "application/json"
+    }
+  })
+  .then( () => console.log("delete complete?"))
+  .catch(function(error) {
+    console.log(error);
+  });
+
+}
+
+
+
+// function beginEdit () {
+//   let currentTitleValue = document.getElementById("title-value").value;
+//   let currentBodyValue = document.getElementById("body-value").value;
+//   let submissionBody = { "title": currentTitleValue, "body": currentBodyValue, "user_id": 1}
+//   editOnServer(submissionBody)
+// }
+
+
 //before: There is a post on the page. There are two buttons.
 //After: I want to see no post or buttons.
 //input: someway to identify the post
 //I want to remove the post based on the identity. e.g. className = "5"
+//use the string to find the container with post and buttons
+//delete the container forever from DOM
 function removeFromFront(className){
-    let containerToDelete = document.getElementById(`post-container-${className}`);
-    containerToDelete.style = "display: none";
-    // detail.removeChild(containerToDelete);
-    //use the string to find the container with post and buttons
-    //delete the container forever from DOM
+    let sidebarContainerToDelete = document.getElementById(`sidebar__post-container-${className}`);
+    let detailContainerToDelete = document.getElementById(`detail__post-container-${className}`);
+    sidebarContainerToDelete.style = "display: none";
+    detailContainerToDelete.style = "display: none";
 }
 
 const displayNotes = (notes) => {
   notes.forEach( note => {
-    sidebar.innerHTML += `<div id="post-container-${note.id}" class="${note.id}" ><h2>${note.title}</h2><p>${note.body.slice(0,20)}...</p></div>`
+    sidebar.innerHTML += `<div id="sidebar__post-container-${note.id}" class="${note.id}" ><h2>${note.title}</h2><p>${note.body.slice(0,20)}...</p></div>`
 
-    detail.innerHTML += `<div id="post-container-${note.id}" class="${note.id}"><h2>${note.title}</h2><p>${note.body}</p><button id="edit" class="${note.id}">Edit</button> <button id="delete" class="${note.id}">Delete</button></div>`
+    detail.innerHTML += `<div id="detail__post-container-${note.id}" class="${note.id}"><h2>${note.title}</h2><p>${note.body}</p><button id="edit" class="${note.id}">Edit</button> <button id="delete" class="${note.id}">Delete</button></div>`
   })
   sidebar.innerHTML += `<div><button style="height:03%; width:100%;" id="create-button">Create a new post!</button></div>`
   const createButton = document.getElementById('create-button');
@@ -79,16 +201,7 @@ function displayCreateForm () {
     newSubmit.addEventListener("click", beginPost)
 }
 
-function displayEditForm () {
-    //{title: "Brooke's Note", body: "This is brooke's note", user_id: id}
-    const detailNodes = document.querySelectorAll("#detail div");
-    for (let detailElement of detailNodes) {
-          detailElement.style.display = "none";
-    }
-    generateForm();
-    editSubmit = document.getElementById("submit-button");
-    editSubmit.addEventListener("click", beginEdit)
-}
+
 
 function generateForm () {
   let createForm = document.createElement("form");
@@ -123,66 +236,9 @@ function beginPost () {
   postToServer(submissionBody)
 }
 
-function beginEdit () {
-  let currentTitleValue = document.getElementById("title-value").value;
-  let currentBodyValue = document.getElementById("body-value").value;
-  let submissionBody = { "title": currentTitleValue, "body": currentBodyValue, "user_id": 1}
-  editOnServer(submissionBody)
-}
 
 
-function editOnServer(editBody) {
-  let url = "http://localhost:3000/api/v1/notes"
-  let id = "3" //somehow find ID
-  let url_with_id = url + "/" + id
 
-  fetch(`url_with_id`, {
-    method: 'PUT',
-    headers: {
-      'Content-type': 'application/json',
-      'Accept': 'application/json',
-    },
-    body: JSON.stringify(editBody)
-  })
-  .then( res => res.json())
-  .then( json => console.log(json));
-}
-function postToServer(body){
-  let url = "http://localhost:3000/api/v1/notes"
-  //{title: "Brooke's Note", body: "This is brooke's note", user_id: id}
-  function createPost(url,body) {
-    const postConfig = {
-      Accept: "application/json",
-      method: "POST",
-      headers: {
-        "Content-type": "application/json"
-      },
-      body: JSON.stringify(body),
-    };
-    return fetch(url, postConfig)
-  }
-  createPost(url,body)
-}
-
-function removeFromServer (id) {
-  let url = "http://localhost:3000/api/v1/notes"
-  let url_with_id = url + "/" + id
-
-  // debugger;
-
-  fetch(url_with_id, {
-    method: 'DELETE',
-    headers: {
-      "Accept": "application/json",
-      "Content-type": "application/json"
-    }
-  })
-  .then( () => console.log("delete complete?"))
-  .catch(function(error) {
-    console.log(error);
-  });
-
-}
 
 
 
