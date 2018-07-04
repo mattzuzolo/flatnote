@@ -7,9 +7,42 @@ document.addEventListener("DOMContentLoaded", function() {
     .then(response => response.json())
     .then(json => displayNotes(json))
     .then(() => console.log("Fetch complete"))
-    .then(() => findSidebarNode());
-    // .then(() => deletePost());
+    .then(() => findSidebarNode())
+    .then(() => deletePostListener());
 });
+
+function deletePostListener() {
+    const deleteButtons = document.querySelectorAll("#delete")
+    for (let individualDeleteButton of deleteButtons) {
+      individualDeleteButton.addEventListener("click", function(){
+          removeFromFront(this.className);
+          removeFromServer(this.className);
+      })
+    }
+
+}
+//before: There is a post on the page. There are two buttons.
+//After: I want to see no post or buttons.
+//input: someway to identify the post
+//I want to remove the post based on the identity. e.g. className = "5"
+function removeFromFront(className){
+    let containerToDelete = document.getElementById(`post-container-${className}`);
+    containerToDelete.style = "display: none";
+    // detail.removeChild(containerToDelete);
+    //use the string to find the container with post and buttons
+    //delete the container forever from DOM
+}
+
+const displayNotes = (notes) => {
+  notes.forEach( note => {
+    sidebar.innerHTML += `<div id="post-container-${note.id}" class="${note.id}" ><h2>${note.title}</h2><p>${note.body.slice(0,20)}...</p></div>`
+
+    detail.innerHTML += `<div id="post-container-${note.id}" class="${note.id}"><h2>${note.title}</h2><p>${note.body}</p><button id="edit" class="${note.id}">Edit</button> <button id="delete" class="${note.id}">Delete</button></div>`
+  })
+  sidebar.innerHTML += `<div><button style="height:03%; width:100%;" id="create-button">Create a new post!</button></div>`
+  const createButton = document.getElementById('create-button');
+  createButton.addEventListener("click", displayCreateForm)
+}
 
 //add selector just for sidebar before DOM is loaded
 function findSidebarNode() {
@@ -33,16 +66,6 @@ function handleSidebarNode(title) {
         detailElement.style.display = "none";
     }
   }
-}
-
-const displayNotes = (notes) => {
-  notes.forEach( note => {
-    sidebar.innerHTML += `<div class="${note.id}"><h2>${note.title}</h2><p>${note.body.slice(0,20)}...</p></div>`
-    detail.innerHTML += `<div class="${note.id}"><h2>${note.title}</h2><p>${note.body}</p><button id="edit" class="${note.id}">Edit</button> <button id="delete" class="${note.id}">Delete</button></div>`
-  })
-  sidebar.innerHTML += `<div><button style="height:03%; width:100%;" id="create-button">Create a new post!</button></div>`
-  const createButton = document.getElementById('create-button');
-  createButton.addEventListener("click", displayCreateForm)
 }
 
 function displayCreateForm () {
@@ -72,7 +95,6 @@ function generateForm () {
   detail.append(createForm);
   createForm.style.padding = "03%";
 
-  //this renders but can't see? covered?
   let titleField = document.createElement("input")
   titleField.id = "title-value";
   titleField.defaultValue = "Create title here"
@@ -108,27 +130,10 @@ function beginEdit () {
   editOnServer(submissionBody)
 }
 
-function postToServer(body){
-  let url = "http://localhost:3000/api/v1/notes"
-  //{title: "Brooke's Note", body: "This is brooke's note", user_id: id}
-  function createPost(url,body) {
-     const postConfig = {
-       Accept: "application/json",
-       method: "POST",
-       headers: {
-         "Content-type": "application/json"
-       },
-       body: JSON.stringify(body),
-     };
-     debugger;
-     return fetch(url, postConfig)
-   }
-   createPost(url,body)
-}
 
 function editOnServer(editBody) {
   let url = "http://localhost:3000/api/v1/notes"
-  let id = "#" //somehow find ID
+  let id = "3" //somehow find ID
   let url_with_id = url + "/" + id
 
   fetch(`url_with_id`, {
@@ -142,17 +147,39 @@ function editOnServer(editBody) {
   .then( res => res.json())
   .then( json => console.log(json));
 }
-
-function removeFromServer () {
+function postToServer(body){
   let url = "http://localhost:3000/api/v1/notes"
-  let id = "#" //somehow find ID
+  //{title: "Brooke's Note", body: "This is brooke's note", user_id: id}
+  function createPost(url,body) {
+    const postConfig = {
+      Accept: "application/json",
+      method: "POST",
+      headers: {
+        "Content-type": "application/json"
+      },
+      body: JSON.stringify(body),
+    };
+    return fetch(url, postConfig)
+  }
+  createPost(url,body)
+}
+
+function removeFromServer (id) {
+  let url = "http://localhost:3000/api/v1/notes"
   let url_with_id = url + "/" + id
+
+  // debugger;
 
   fetch(url_with_id, {
     method: 'DELETE',
     headers: {
+      "Accept": "application/json",
       "Content-type": "application/json"
     }
+  })
+  .then( () => console.log("delete complete?"))
+  .catch(function(error) {
+    console.log(error);
   });
 
 }
