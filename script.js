@@ -28,12 +28,72 @@ function handleSidebarNode(title) {
   const detailNodes = document.querySelectorAll("#detail div");
   for (let detailElement of detailNodes) {
     if (this.children[0].innerText === detailElement.children[0].innerText) {
-      debugger;
         detailElement.style.display = "inline";
     } else {
         detailElement.style.display = "none";
     }
   }
+}
+
+const displayNotes = (notes) => {
+  notes.forEach( note => {
+    sidebar.innerHTML += `<div class="${note.id}"><h2>${note.title}</h2><p>${note.body.slice(0,20)}...</p></div>`
+
+    detail.innerHTML += `<div class="${note.id}"><h2>${note.title}</h2><p>${note.body}</p><button id="edit" class="${note.id}">Edit</button> <button id="delete" class="${note.id}">Delete</button></div>`
+  })
+  sidebar.innerHTML += `<div><button style="height:03%; width:100%;" id="create-button">Create a new post!</button></div>`
+  const createButton = document.getElementById('create-button');
+  createButton.addEventListener("click", displayCreateForm)
+
+}
+
+function displayCreateForm () {
+    //{title: "Brooke's Note", body: "This is brooke's note", user_id: id}
+
+    //hide all of the current stories in the detail section
+    const detailNodes = document.querySelectorAll("#detail div");
+    for (let detailElement of detailNodes) {
+          detailElement.style.display = "none";
+    }
+    generateForm ()
+}
+
+function generateForm () {
+  let createForm = document.createElement("form");
+  detail.append(createForm);
+  createForm.style.padding = "03%";
+
+  //this displays but can't see? covered?
+  let titleField = document.createElement("input")
+  titleField.defaultValue = "Create title here"
+  createForm.append(titleField);
+
+  let bodyField = document.createElement("textarea")
+  bodyField.defaultValue = "Add your description here"
+  bodyField.style.width = "100%";
+  bodyField.style.height = "20%";
+  createForm.append(bodyField);
+
+  let submitButton = document.createElement("button")
+  submitButton.style.width = "100%";
+  submitButton.style.height = "02%";
+  submitButton.innerHTML = "Submit"
+  createForm.append(submitButton);
+}
+
+
+
+//finds first parent with selector
+//https://stackoverflow.com/questions/22119673/find-the-closest-ancestor-element-that-has-a-specific-class
+
+function clickEditButton () {
+  //add eventlistener for the edit clickEditButton
+
+  //once clicked, it will create a form with:
+      //title field
+      //body field
+      //submit button
+          //add event listener to submit button that will invoke removeFromServer() and make edit request to the server
 }
 
 
@@ -51,23 +111,10 @@ function removeFromServer () {
 
 }
 
-//finds first parent with selector
-//https://stackoverflow.com/questions/22119673/find-the-closest-ancestor-element-that-has-a-specific-class
-
-
-
-const displayNotes = (notes) => {
-  notes.forEach( note => {
-    sidebar.innerHTML += `<div class="${note.id}"><h2>${note.title}</h2><p>${note.body.slice(0,20)}...</p></div>`
-
-    detail.innerHTML += `<div class="${note.id}"><h2>${note.title}</h2><p>${note.body}</p><button id="edit" class="${note.id}">Edit</button> <button id="delete" class="${note.id}">Delete</button></div>`
-  })
-}
-
 function editOnServer() {
 
   let url = "http://localhost:3000/api/v1/notes"
-  let id = "374"
+  let id = "#" //somehow find ID
   let url_with_id = url + "/" + id
   let editBody = {title: "Brooke's Note", body: "This is brooke's note", user_id: id}
 
