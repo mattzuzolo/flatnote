@@ -55,7 +55,10 @@ function displayCreateForm () {
     for (let detailElement of detailNodes) {
           detailElement.style.display = "none";
     }
-    generateForm ()
+    generateForm();
+    //obtain info from field
+    //add event listener for when user clicks submit
+        //POST to server after click - createPost(url, body);
 }
 
 function generateForm () {
@@ -63,25 +66,34 @@ function generateForm () {
   detail.append(createForm);
   createForm.style.padding = "03%";
 
-  //this displays but can't see? covered?
+  //this renders but can't see? covered?
   let titleField = document.createElement("input")
+  titleField.id = "title-value";
   titleField.defaultValue = "Create title here"
   createForm.append(titleField);
 
   let bodyField = document.createElement("textarea")
+  bodyField.id = "body-value";
   bodyField.defaultValue = "Add your description here"
   bodyField.style.width = "100%";
   bodyField.style.height = "20%";
   createForm.append(bodyField);
 
   let submitButton = document.createElement("button")
+  submitButton.id = "submit-button";
   submitButton.style.width = "100%";
   submitButton.style.height = "02%";
   submitButton.innerHTML = "Submit"
   createForm.append(submitButton);
+
+  submitButton.addEventListener("click", function() {
+    let currentTitleValue = document.getElementById("title-value").value;
+    let currentBodyValue = document.getElementById("body-value").value;
+    //{title: "Brooke's Note", body: "This is brooke's note", user_id: id}
+    let submissionBody = { "title": currentTitleValue, body: "currentBodyValue", "user": 1}
+    postToServer(submissionBody)
+  })
 }
-
-
 
 //finds first parent with selector
 //https://stackoverflow.com/questions/22119673/find-the-closest-ancestor-element-that-has-a-specific-class
@@ -110,23 +122,41 @@ function removeFromServer () {
   });
 
 }
-
-function editOnServer() {
-
+//
+function postToServer(body){
   let url = "http://localhost:3000/api/v1/notes"
-  let id = "#" //somehow find ID
-  let url_with_id = url + "/" + id
-  let editBody = {title: "Brooke's Note", body: "This is brooke's note", user_id: id}
-
-  fetch(`url_with_id`, {
-    method: 'PUT',
-    headers: {
-      'Content-type': 'application/json',
-      'Accept': 'application/json',
-    },
-    body: JSON.stringify(editBody)
-  })
-  .then( res => res.json())
-  .then( json => console.log(json));
-
+  //{title: "Brooke's Note", body: "This is brooke's note", user_id: id}
+  function createPost(url,body) {
+     const postConfig = {
+       Accept: "application/json",
+       method: "POST",
+       headers: {
+         "Content-type": "application/json"
+       },
+       body: JSON.stringify(body)
+     };
+     return fetch(url, postConfig)
+     .then(() => console.log("Fetch returned!"))
+   }
+   createPost(url,body)
 }
+
+// function editOnServer() {
+//
+//   let url = "http://localhost:3000/api/v1/notes"
+//   let id = "#" //somehow find ID
+//   let url_with_id = url + "/" + id
+//   let editBody = {title: "Brooke's Note", body: "This is brooke's note", user_id: id}
+//
+//   fetch(`url_with_id`, {
+//     method: 'PUT',
+//     headers: {
+//       'Content-type': 'application/json',
+//       'Accept': 'application/json',
+//     },
+//     body: JSON.stringify(editBody)
+//   })
+//   .then( res => res.json())
+//   .then( json => console.log(json));
+//
+// }
