@@ -8,10 +8,52 @@ document.addEventListener("DOMContentLoaded", function() {
     .then(json => displayNotes(json))
     .then(() => console.log("Fetch complete"))
     .then(() => findSidebarNode())
+    .then(() => console.log("findSidebarNode complete"))
     .then(() => deletePostListener())
-    .then(() => editPostListener())
+    .then(() => console.log("delete complete"))
+    .then(() => editPostListener());
 
 });
+
+function editPostListener() {
+    const editButtons = document.querySelectorAll("#edit")
+    for (let individualeditButton of editButtons) {
+      individualeditButton.addEventListener("click", function(){
+        generateForm();
+        displayEditForm(this.className)
+
+      })
+    }
+}
+
+    //{title: "Brooke's Note", body: "This is brooke's note", user_id: id}
+function displayEditForm(className) {
+  //can't access class and keep getting promise pends
+
+    document.getElementById("submit-button").addEventListener("click", function () {
+    // editSubmit.addEventListener("click", function () {
+          var currentTitleValue = document.getElementById("title-value").value;
+          var currentBodyValue = document.getElementById("body-value").value;
+          var submissionBody = { "title": currentTitleValue, "body": currentBodyValue, "user_id": 1}
+          //editOnServer(submissionBody, className)
+
+          //this fetch works in console. But not in code.
+          fetch(`http://localhost:3000/api/v1/notes/3`, {
+            method: 'PUT',
+            headers: {
+              'Content-type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({"title": currentTitleValue, "body": currentBodyValue, "user_id": 1})
+          })
+          .then( res => res.json())
+          .then( json => {
+            console.log(json);
+          })
+
+
+    })
+}
 
 function deletePostListener() {
     const deleteButtons = document.querySelectorAll("#delete")
@@ -22,70 +64,21 @@ function deletePostListener() {
       })
     }
 }
-
-function editPostListener() {
-    const editButtons = document.querySelectorAll("#edit")
-    for (let individualeditButton of editButtons) {
-      individualeditButton.addEventListener("click", function(){
-        displayEditForm(this.className)
-
-      })
-    }
-}
-
-function displayEditForm (className) {
-    //{title: "Brooke's Note", body: "This is brooke's note", user_id: id}
-    generateForm();
-    editSubmit = document.getElementById("submit-button");
-    // editSubmit.addEventListener("click", beginEdit)
-    editSubmit.addEventListener("click", function () {
-      debugger;
-      let currentTitleValue = document.getElementById("title-value").value;
-      let currentBodyValue = document.getElementById("body-value").value;
-      let submissionBody = { "title": currentTitleValue, "body": currentBodyValue, "user_id": 1}
-      // debugger;
-      //editOnServer(submissionBody, className)
-
-
-      //this fetch works in console. But not in code.
-      debugger;
-      fetch(`http://localhost:3000/api/v1/notes/${className}`, {
-      method: 'PUT',
-      headers: {
-        'Content-type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify({title: "matt's Note", body: "This is Matt's note", user_id: 2})
-    })
-    // .then( res => res.json())
-    // .then( json => {
-    //   console.log(json);
-    // })
-    debugger;
-
-
-
-
-      //newPut(className)
-    })
-}
-
-function newPut(id){
-
-  fetch(`http://localhost:3000/api/v1/notes/${id}`, {
-  method: 'PUT',
-  headers: {
-    'Content-type': 'application/json',
-    'Accept': 'application/json',
-  },
-  body: JSON.stringify({title: "Brooke's Note", body: "This is brooke's note", user_id: 2})
-})
-  .then( res => res.json())
-  .then( json => {
-    console.log(json);
-  })
-
-}
+//
+// function newPut(id){
+//
+//   fetch(`http://localhost:3000/api/v1/notes/${id}`, {
+//   method: 'PUT',
+//   headers: {
+//     'Content-type': 'application/json',
+//     'Accept': 'application/json',
+//   },
+//   body: JSON.stringify({title: "Brooke's Note", body: "This is brooke's note", user_id: 2})
+// })
+//   .then( res => res.json())
+//   .then( json => {console.log(json)})
+//
+// }
 
 
 
@@ -114,8 +107,8 @@ function editOnServer(body, id) {
       const postConfig = {
         method: "PUT",
         headers: {
+          "Accept": "application/json",
           "Content-type": "application/json",
-          "Accept": "application/json"
         },
         body: JSON.stringify(body),
       };
