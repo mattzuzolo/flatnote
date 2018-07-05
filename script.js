@@ -175,6 +175,7 @@ function displayEditForm(className) {
 
           //this fetch works in console and postman. But not in code.
           fetch(url_with_id, {
+            //Accept: "application/json",
             method: 'PUT',
             headers: {
               'Content-type': 'application/json',
@@ -182,14 +183,28 @@ function displayEditForm(className) {
             //body: JSON.stringify({"title": "currentTitleValue", "body": "currentBodyValue", "user_id": 1})
             body: JSON.stringify(submissionBody)
           })
-          // .then( res => res.json())
-          // .then( json => {
-          // console.log(json);
-          // })
+          .then( res => res.json())
+          .then( json => {
+          console.log(json);
+          })
 
 
     })
 }
+//post func:
+// function createPost(url,body) {
+//   const postConfig = {
+//     Accept: "application/json",
+//     method: "POST",
+//     headers: {
+//       "Content-type": "application/json"
+//     },
+//     body: JSON.stringify(body),
+//   }
+//   return fetch(url, postConfig)
+// }
+// createPost(url,body)
+
 
 
 //old edit functions
