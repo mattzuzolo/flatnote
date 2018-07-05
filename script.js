@@ -167,31 +167,55 @@ function displayEditForm(className) {
           //className is uncaughtreference error here.
           var currentTitleValue = document.getElementById("title-value").value;
           var currentBodyValue = document.getElementById("body-value").value;
-          var submissionBody = { "title": currentTitleValue, "body": currentBodyValue, "user_id": 1}
+          var submissionBody = { "title": "DOES THIS WORK", "body": "I HOPE SO", "user_id": 1}
+          var className = parseInt("4")
+          const url = "http://localhost:3000/api/v1/notes/"
+          const url_with_id = url + className
           debugger;
 
           //this fetch works in console and postman. But not in code.
-          fetch(`http://localhost:3000/api/v1/notes/${className}`, {
+          fetch(url_with_id, {
             method: 'PUT',
             headers: {
               'Content-type': 'application/json',
-              'Accept': 'application/json'
             },
             //body: JSON.stringify({"title": "currentTitleValue", "body": "currentBodyValue", "user_id": 1})
             body: JSON.stringify(submissionBody)
           })
-          .then( res => res.json())
-          .then( json => {
-          console.log(json);
-          })
+          // .then( res => res.json())
+          // .then( json => {
+          // console.log(json);
+          // })
 
 
     })
 }
 
 
-
 //old edit functions
+//
+// fetch(`http://localhost:3000/api/v1/notes/${"className"}`, {
+//   method: 'PUT',
+//   headers: {
+//     'Content-type': 'application/json',
+//     //'Accept': 'application/json'
+//   },
+//   //body: JSON.stringify({"title": "currentTitleValue", "body": "currentBodyValue", "user_id": 1})
+//   body: JSON.stringify(submissionBody)
+// })
+
+// let updateMsg = (id, message, real_name) => {
+//     const patchConfig = {
+//         method: 'PUT',
+//         headers: {
+//             'Content-Type': 'application/json'
+//         },
+//         body: JSON.stringify({title: "Brooke's Note", body: "This is brooke's note", user_id: id});
+//         }
+//     }
+
+
+
 
 //
 // function seeEditButtons() {
