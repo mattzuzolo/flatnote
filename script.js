@@ -136,6 +136,7 @@ function removeFromServer (id) {
     console.log(error);
   });
 }
+//code
 
 function removeFromFront(className){
     let sidebarContainerToDelete = document.getElementById(`sidebar__post-container-${className}`);
